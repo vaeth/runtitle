@@ -1,0 +1,14 @@
+#compdef run
+_arguments -s -S -A '-*' : \
+'(* -)'{'-h','-\\?'}'[help]' \
+'-n+[NUM. Run up to NUM times if it fails (0=forever)]:num failure:(1)' \
+'-N+[NUM. Run at least NUM times (0=forever)]:num runs:(1)' \
+'-v[Beep at every restart]' \
+'-q[Never beep]' \
+'-b[Beep always at the end]' \
+'-B[Beep only if all retries failed]' \
+'-f[Force status output]' \
+'-s[Print softstatus output]' \
+'-S[Do not set softstatus]' \
+'-H[Do not set any status]' \
+'*::command: _normal'

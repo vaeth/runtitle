@@ -1,0 +1,57 @@
+#! /usr/bin/env sh
+
+
+TitlePlain() {
+	printf '\033]0;%s\007' "${*}"
+	${softstatus} || return 0
+	printf '\033k%s\033\\' "${*}"
+}
+
+TitleVerbose() {
+	[ -n "${USER}" ] || USER=`id -un`
+	[ -n "${HOSTNAME}" ] || HOSTNAME=`hostname`
+	TitlePlain "${*} (${USER}@${HOSTNAME})"
+}
+
+TitleInit() {
+	case ${TERM} in
+	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
+		hardstatus=:;;
+	*)
+		hardstatus=false;;
+	esac
+	case ${TERM} in
+	screen*)
+		softstatus=:;;
+	*)
+		softstatus=false;;
+	esac
+	Title() {
+	TitleVerbose "${@}"
+}
+	OPTIND=1
+	while getopts 'pfsShH?' opt
+	do	case ${opt} in
+		p)	Title() {
+	TitlePlain "${@}"
+};;
+		f)	hardstatus=:;;
+		s)	softstatus=:;;
+		S)	softstatus=false;;
+		*)	printf '%s\n' "Usage: ${0##*/} [options] text
+Sets the hard status line (windows title).
+The following options are available:
+-p Plain message (do not print user and host)
+-f Force output even if TERM is not known to be supported
+-s Print softstatus even if TERM is not known to be supported
+-S Do not set softstatus
+-h Print this help
+-- Last option"
+			exit 0;;
+		esac
+	done
+	shift $(( ${OPTIND} - 1 ))
+	[ ${#} -gt 0 ] && Title "${*}"
+}
+
+TitleInit "${@}"

@@ -1,0 +1,110 @@
+#! /usr/bin/env sh
+Echo() {
+	printf '%s\n' "${*}"
+}
+
+Usage() {
+	Echo "Usage: ${0##*/} [options] [--] command [options for command]
+Run command with appropriate hard status (windows title) and run bell on error.
+The special command \"eval\" can be used to execute the options as shell code.
+options:
+-n NUM  Run command up to NUM times if it fails; currently ${numfail}
+        0 means re-run forever if necessary.
+-N NUM  Run command at least NUM times even if it succeeds; currently ${numall}
+        0 means re-run forever
+-q      Never beep
+-v      Beep at every restart
+-b      Beep always at the end
+-B      Beep only if all retries failed
+-f      Force status output even if TERM is not known to be supported
+-s      Print softstatus even if TERM is not known to be supported
+-S      Do not set softstatus
+-H      Do not set any status
+--      Last option"
+	exit ${1:-1}
+}
+
+quiet=false
+verbose=false
+beep=false
+latebeep=false
+numfail=1
+numall=1
+usestatus=:
+passopt=
+OPTIND=1
+while getopts 'qvbBn:N:fsSHh?' opt
+do	case ${opt} in
+	q)	quiet=:;;
+	v)	verbose=:;;
+	b)	beep=:;;
+	B)	latebeep=:;;
+	n)	numfail=${OPTARG};;
+	N)	numall=${OPTARG};;
+	[fsS])	passopt="${passopt}${passopt:+ }-${opt}";;
+	H)	usestatus=false;;
+	*)	Usage 0;;
+	esac
+done
+shift $(( ${OPTIND} -1 ))
+
+[ ${#} -ne 0 ] || Usage
+case "${numfail:-x}${numall:-x}" in
+*[!0-9]*)	Usage;;
+esac
+[ ${numall} -eq 0 ] && numfail=0
+[ ${numall} -le ${numfail} ] || numfail=${numall}
+
+if ${quiet}
+then	Beep() {
+	:
+}
+else	Beep() {
+	printf '\007'
+}
+fi
+
+if ${usestatus}
+then	TitleInit() {
+	sourceonly=:
+	. title "${@}"
+}
+	TitleInit ${passopt}
+Title() { echo $*; }
+else	Title() {
+	:
+}
+fi
+
+currtry=1
+prog=${1##*/}
+Loop() {
+	cprog=${prog}
+	Title "running ${cprog}"
+	while :
+	do	( "${@}" ) && {
+			[ ${numall} -ne 0 ] && [ ${currtry} -ge ${numall} ] && return
+			${verbose} && Beep
+			currtry=$(( ${currtry} + 1 ))
+			cprog="${prog}(${currtry})"
+			Title "running ${cprog}"
+			continue
+		}
+		ret=${?}
+		cprog="${prog}(${currtry})"
+		${latebeep} || Beep
+		[ ${numfail} -ne 0 ] && [ ${currtry} -ge ${numfail} ] && return ${ret}
+		${verbose} && ${latebeep} && Beep
+		Title "failure ${cprog}[${ret}]"
+		currtry=$(( ${currtry} + 1 ))
+	done
+}
+
+Loop "${@}" && {
+	Title "${cprog} success"
+	${beep} && Beep
+	exit 0
+}
+Title "${cprog}[${ret}]"
+${latebeep} && Beep
+exit ${ret}
