@@ -8,8 +8,8 @@ TitlePlain() {
 }
 
 TitleVerbose() {
-	[ -n "${USER}" ] || USER=`id -un`
-	[ -n "${HOSTNAME}" ] || HOSTNAME=`hostname`
+	[ -n "${USER:++}" ] || USER=`id -un`
+	[ -n "${HOSTNAME:++}" ] || HOSTNAME=`hostname`
 	TitlePlain "${*} (${USER}@${HOSTNAME})"
 }
 
