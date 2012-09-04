@@ -49,7 +49,7 @@ done
 shift $(( ${OPTIND} -1 ))
 
 [ ${#} -ne 0 ] || Usage
-case "${numfail:-x}${numall:-x}" in
+case ${numfail:-x}${numall:-x} in
 *[!0-9]*)	Usage;;
 esac
 [ ${numall} -eq 0 ] && numfail=0
@@ -64,13 +64,33 @@ else	Beep() {
 }
 fi
 
+Exit() {
+	exit ${1:-${?}}
+}
+
 if ${usestatus}
-then	TitleInit() {
-	sourceonly=:
+then	Title() {
+Title() {
+	:
+}
+	command -v title >/dev/null 2>&1 || return 0
+Exit() {
+	exitstat=${1:-${?}}
+	trap - EXIT HUP INT TERM
+	exit ${exitstat}
+}
+TitleTrap() {
+	trap : EXIT HUP INT TERM
+	Title "${cprog} interrupt"
+	trap - EXIT HUP INT TERM
+	exit 130
+}
+	trap TitleTrap EXIT HUP INT TERM
+TitleInit() {
 	. title "${@}"
 }
-	TitleInit ${passopt}
-Title() { echo $*; }
+	TitleInit ${passopt} -- "${@}"
+}
 else	Title() {
 	:
 }
@@ -103,8 +123,8 @@ Loop() {
 Loop "${@}" && {
 	Title "${cprog} success"
 	${beep} && Beep
-	exit 0
+	Exit 0
 }
 Title "${cprog}[${ret}]"
 ${latebeep} && Beep
-exit ${ret}
+Exit ${ret}

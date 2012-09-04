@@ -29,3 +29,25 @@ Then the function "TitleInit" can be used with the same meaning as "title",
 (but can be used repeatedly without restarting title).
 Moreover, after "TitleInit" the function "Title" can be used (also repeatedly)
 to set the title according to the options of "TitleInit".
+Also, there are functions TitlePlain and TitleVerbose which act corresopnding
+to title -p or title -P, respectively.
+If you only want to define Title, TitlePlain, TitleVerbose, and TitleInit
+by sourcing, use option -q as the last option in the call to TitleInit.
+
+The following function Title will define Title, TitlePlain, TitleVerbose,
+and TitleInit appropriately at its first call (if title is in the path)
+and then act as Title:
+
+Title() {
+Title() {
+	:
+}
+	command -v title >/dev/null 2>&1 || return 0
+TitleInit() {
+	. title "${@}"
+}
+	TitleInit [options to title] -- "${@}"
+}
+
+In the file bin/run you find an example how this can be combined with
+setting a trap so that a sane title is "restored" at program exit.
