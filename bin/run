@@ -16,10 +16,7 @@ options:
 -v      Beep at every restart
 -b      Beep always at the end
 -B      Beep only if all retries failed
--f      Force status output even if TERM is not known to be supported
--s      Print softstatus even if TERM is not known to be supported
--S      Do not set softstatus
--H      Do not set any status
+-T[pPfHsS-] pass option(s) to the title script; - means no title
 --      Last option"
 	exit ${1:-1}
 }
@@ -30,10 +27,9 @@ beep=false
 latebeep=false
 numfail=1
 numall=1
-usestatus=:
-passopt=
+titleopt=
 OPTIND=1
-while getopts 'qvbBn:N:fsSHh?' opt
+while getopts 'qvbBn:N:T:h?' opt
 do	case ${opt} in
 	q)	quiet=:;;
 	v)	verbose=:;;
@@ -41,12 +37,16 @@ do	case ${opt} in
 	B)	latebeep=:;;
 	n)	numfail=${OPTARG};;
 	N)	numall=${OPTARG};;
-	[fsS])	passopt="${passopt}${passopt:+ }-${opt}";;
-	H)	usestatus=false;;
+	T)	titleopt="${titleopt}${titleopt:+ }-${opt}";;
 	*)	Usage 0;;
 	esac
 done
 shift $(( ${OPTIND} -1 ))
+
+case ${titleopt} in
+*[!pPfHsS-]*)
+	Usage;;
+esac
 
 [ ${#} -ne 0 ] || Usage
 case ${numfail:-x}${numall:-x} in
@@ -57,22 +57,24 @@ esac
 
 if ${quiet}
 then	Beep() {
-	:
+:
 }
 else	Beep() {
-	printf '\007'
+printf '\007'
 }
 fi
 
 Exit() {
-	exit ${1:-${?}}
+exit ${1:-${?}}
 }
 
-if ${usestatus}
-then	Title() {
 Title() {
-	:
+Title() {
+:
 }
+	case ${titleopt} in
+	*-*)	return;;
+	esac
 	command -v title >/dev/null 2>&1 || return 0
 Exit() {
 	exitstat=${1:-${?}}
@@ -87,14 +89,10 @@ TitleTrap() {
 }
 	trap TitleTrap EXIT HUP INT TERM
 TitleInit() {
-	. title "${@}"
+. title "${@}"
 }
-	TitleInit ${passopt} -- "${@}"
+	TitleInit ${titleopt:+"-${titleopt}"} -- "${@}"
 }
-else	Title() {
-	:
-}
-fi
 
 currtry=1
 prog=${1##*/}

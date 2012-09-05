@@ -7,8 +7,5 @@ _arguments -s -S -A '-*' : \
 '-q[Never beep]' \
 '-b[Beep always at the end]' \
 '-B[Beep only if all retries failed]' \
-'-f[Force status output]' \
-'-s[Print softstatus output]' \
-'-S[Do not set softstatus]' \
-'-H[Do not set any status]' \
+'-T+[Pass option \[pPfHsS-\] to the title script; -=no title]:title option:(p P f H s S -)' \
 '*::command: _normal'

@@ -1,11 +1,68 @@
 #! /usr/bin/env sh
 
-TitlePlain() {
-	printf '\033]0;%s\007' "${*}"
-	${softstatus} || return 0
-	printf '\033k%s\033\\' "${*}"
+TitleInit() {
+	titleinit_s1_=
+	titleinit_s2_=
+	case ${TERM} in
+	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
+		titleinit_s1_=:;;
+	esac
+	case ${TERM} in
+	screen*)
+		titleinit_s2_=:;;
+	esac
+Title() {
+TitleVerbose "${@}"
 }
-
+	titleinit_q_=false
+	OPTIND=1
+	while getopts 'pPfHsSqh?' opt
+	do	case ${opt} in
+		p)
+Title() {
+TitlePlain "${@}"
+};;
+		P)
+Title() {
+TitleVerbose "${@}"
+};;
+		f)	titleinit_s1_=:;;
+		H)	titleinit_s1_=;;
+		s)	titleinit_s2_=:;;
+		S)	titleinit_s2_=;;
+		q)	titleinit_q_=:;;
+		*)	printf '%s\n' "Usage: ${0##*/} [options] [text]
+Sets the hard status line (windows title).
+The following options are available:
+-p Plain message (do not print user and host)
+-P Ignore previous -p
+-h Force hardstatus even if TERM is not known to be supported
+-s Force softstatus even if TERM is not known to be supported
+-S Do not set softstatus
+-H Do not set hardstatus
+-h Print this help
+-q Quiet (do not output anything; only useful when sourcing this script)
+-- Last option"
+			return;;
+		esac
+	done
+	shift $(( ${OPTIND} - 1 ))
+	if [ -z "${titleinit_s1_}${titleinit_s2_}" ]
+	then
+TitlePlain() {
+:
+}
+TitleVerbose() {
+:
+}
+		return
+	fi
+	[ -z "${titleinit_s1_}" ] || titleinit_s1_="
+printf '"'\033]0;%s\007'\'' "${*}"'
+	[ -z "${titleinit_s2_}" ] || titleinit_s2_="
+printf '"'\033k%s\033\\'\'' "${*}"'
+	eval 'TitlePlain() {'"${titleinit_s1_}${titleinit_s2_}"'
+}'
 TitleVerbose() {
 	[ -n "${USER:++}" ] || USER=`id -un`
 	[ -n "${HOSTNAME:++}" ] || HOSTNAME=`hostname`
@@ -14,52 +71,8 @@ TitleVerbose() {
 	else	TitlePlain "${*}${*:+ }(${USER}@${HOSTNAME})"
 	fi
 }
-
-TitleInit() {
-	case ${TERM} in
-	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
-		hardstatus=:;;
-	*)
-		hardstatus=false;;
-	esac
-	case ${TERM} in
-	screen*)
-		softstatus=:;;
-	*)
-		softstatus=false;;
-	esac
-	Title() {
-	TitleVerbose "${@}"
-}
-	OPTIND=1
-	while getopts 'pPfsSqhH?' opt
-	do	case ${opt} in
-		p)	Title() {
-	TitlePlain "${@}"
-};;
-		P)	Title() {
-	TitleVerbose "${@}"
-};;
-		f)	hardstatus=:;;
-		s)	softstatus=:;;
-		S)	softstatus=false;;
-		q)	return;;
-		*)	printf '%s\n' "Usage: ${0##*/} [options] [text]
-Sets the hard status line (windows title).
-The following options are available:
--p Plain message (do not print user and host)
--P Ignore previous -p
--f Force output even if TERM is not known to be supported
--s Print softstatus even if TERM is not known to be supported
--S Do not set softstatus
--h Print this help
--q Quiet (do not change hardstatus); use this option last when sourcing
--- Last option"
-			return;;
-		esac
-	done
-	shift $(( ${OPTIND} - 1 ))
-	Title "${@}"
+	${titleinit_q_} || Title "${@}"
+	unset titleinit_s1_ titleinit_s2_ titleinit_q_
 }
 
 TitleInit "${@}"
