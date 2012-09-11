@@ -9,10 +9,10 @@ into a directory of zsh's $fpath
 
 This project contains two simple scripts:
 
-run:
+runner:
 Runs a command, setting the title and ringing the bell if command fails.
 There are options to repeat the command (a number of times or if it fails).
-Use run -h to obtain a description.
+Use runner -h to obtain a description.
 
 title:
 Sets the hard status line if the terminal supports it.
@@ -50,5 +50,5 @@ TitleInit() {
 TitleInit [options to title] -- "${@}"
 }
 
-In the file bin/run you find an example how this can be combined with
+In the file bin/runner you find an example how this can be combined with
 setting a trap so that a sane title is "restored" at program exit.

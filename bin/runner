@@ -5,7 +5,7 @@ Echo() {
 
 Usage() {
 	Echo "Usage: ${0##*/} [options] [--] command [options for command]
-Run command with appropriate hard status (windows title) and run bell on error.
+Run command with appropriate hard status (windows title) and beep on error.
 The special command \"eval\" can be used to execute the options as shell code.
 options:
 -n NUM  Run command up to NUM times if it fails; currently ${numfail}
@@ -37,7 +37,7 @@ do	case ${opt} in
 	B)	latebeep=:;;
 	n)	numfail=${OPTARG};;
 	N)	numall=${OPTARG};;
-	T)	titleopt="${titleopt}${titleopt:+ }-${opt}";;
+	T)	titleopt=${titleopt}${OPTARG};;
 	*)	Usage 0;;
 	esac
 done
@@ -56,10 +56,12 @@ esac
 [ ${numall} -le ${numfail} ] || numfail=${numall}
 
 if ${quiet}
-then	Beep() {
+then
+Beep() {
 :
 }
-else	Beep() {
+else
+Beep() {
 printf '\007'
 }
 fi
@@ -96,6 +98,11 @@ TitleInit() {
 
 currtry=1
 prog=${1##*/}
+if [ "${2}" != '--' ]
+then	prog=${prog}${2:+ }${2}
+else	prog=${prog}${3:+ }${3}
+fi
+
 Loop() {
 	cprog=${prog}
 	Title "running ${cprog}"
