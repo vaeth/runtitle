@@ -1,0 +1,12 @@
+#autoload
+local title
+title=(
+'p:do not print user and host'
+'P:print user and host'
+'f:force hardstatus'
+'s:force softstatus'
+'S:do not set softstatus'
+'H:do not set hardstatus'
+'-:no title change'
+)
+_describe -t title 'title option' title

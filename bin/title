@@ -36,7 +36,7 @@ Sets the hard status line (windows title).
 The following options are available:
 -p Plain message (do not print user and host)
 -P Ignore previous -p
--h Force hardstatus even if TERM is not known to be supported
+-f Force hardstatus even if TERM is not known to be supported
 -s Force softstatus even if TERM is not known to be supported
 -S Do not set softstatus
 -H Do not set hardstatus

@@ -4,8 +4,9 @@ This project is under the BSD license.
 Scripts to run commands and set the hard status line (windows title)
 
 For installation, copy the content of bin/ in your path.
-To obtain support for zsh completion, you can copy the content of zsh/
-into a directory of zsh's $fpath
+To obtain support for zsh completion (also for other programs using title),
+you can copy the content of zsh/ into a directory of zsh's $fpath.
+
 
 This project contains two simple scripts:
 
@@ -52,3 +53,10 @@ TitleInit [options to title] -- "${@}"
 
 In the file bin/runner you find an example how this can be combined with
 setting a trap so that a sane title is "restored" at program exit.
+
+If you write a program using Title, I recommend to equip this program
+with an option with an argument which is passed to TitleInit, and where
+the option argument '-' means that the title script is not used.
+Since version 2.3 you can get a proper zsh completion for such an option
+for your program by using the provided autoloaded function _title_opt;
+see zsh/_runner for a sample usage of that function.

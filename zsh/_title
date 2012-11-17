@@ -1,0 +1,11 @@
+#compdef title
+_arguments -s -S -A '-*' : \
+'(* -)'{'-h','-\\?'}'[help]' \
+'-p[print user and host)]' \
+'-P[do not print user and host]' \
+'-f[Force hardstatus]' \
+'-s[Force softstatus]' \
+'-S[no softstatus]' \
+'-H[no hardstatus]' \
+'-q[quiet (only useful for sourcing)]' \
+'*::title text'

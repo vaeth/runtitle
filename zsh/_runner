@@ -7,5 +7,5 @@ _arguments -s -S -A '-*' : \
 '-q[Never beep]' \
 '-b[Beep always at the end]' \
 '-B[Beep only if all retries failed]' \
-'-T+[Pass option \[pPfHsS-\] to the title script; -=no title]:title option:(p P f H s S -)' \
+'*-T+[OPT. Set title option]:title option:_title_opt' \
 '*::command: _normal'
