@@ -3,28 +3,28 @@
 TitleInit() {
 	titleinit_s1_=
 	titleinit_s2_=
-	case ${TERM} in
+	case $TERM in
 	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
 		titleinit_s1_=:;;
 	esac
-	case ${TERM} in
+	case $TERM in
 	screen*)
 		titleinit_s2_=:;;
 	esac
 Title() {
-TitleVerbose "${@}"
+TitleVerbose "$@"
 }
 	titleinit_q_=false
 	OPTIND=1
 	while getopts 'pPfHsSqh?' opt
-	do	case ${opt} in
+	do	case $opt in
 		p)
 Title() {
-TitlePlain "${@}"
+TitlePlain "$@"
 };;
 		P)
 Title() {
-TitleVerbose "${@}"
+TitleVerbose "$@"
 };;
 		f)	titleinit_s1_=:;;
 		H)	titleinit_s1_=;;
@@ -46,8 +46,8 @@ The following options are available:
 			return;;
 		esac
 	done
-	shift $(( ${OPTIND} - 1 ))
-	if [ -z "${titleinit_s1_}${titleinit_s2_}" ]
+	shift $(( $OPTIND - 1 ))
+	if [ -z "$titleinit_s1_$titleinit_s2_" ]
 	then
 TitlePlain() {
 :
@@ -57,22 +57,22 @@ TitleVerbose() {
 }
 		return
 	fi
-	[ -z "${titleinit_s1_}" ] || titleinit_s1_="
-printf '"'\033]0;%s\007'\'' "${*}"'
-	[ -z "${titleinit_s2_}" ] || titleinit_s2_="
-printf '"'\033k%s\033\\'\'' "${*}"'
-	eval 'TitlePlain() {'"${titleinit_s1_}${titleinit_s2_}"'
+	[ -z "$titleinit_s1_" ] || titleinit_s1_="
+printf '"'\033]0;%s\007'\'' "$*"'
+	[ -z "$titleinit_s2_" ] || titleinit_s2_="
+printf '"'\033k%s\033\\'\'' "$*"'
+	eval 'TitlePlain() {'"$titleinit_s1_$titleinit_s2_"'
 }'
 TitleVerbose() {
 	[ -n "${USER:++}" ] || USER=`id -un`
 	[ -n "${HOSTNAME:++}" ] || HOSTNAME=`hostname`
-	if [ ${#} -eq 0 ]
-	then	TitlePlain "${USER}@${HOSTNAME}"
-	else	TitlePlain "${*}${*:+ }(${USER}@${HOSTNAME})"
+	if [ $# -eq 0 ]
+	then	TitlePlain "$USER@$HOSTNAME"
+	else	TitlePlain "$*${*:+ }($USER@$HOSTNAME)"
 	fi
 }
-	${titleinit_q_} || Title "${@}"
+	$titleinit_q_ || Title "$@"
 	unset titleinit_s1_ titleinit_s2_ titleinit_q_
 }
 
-TitleInit "${@}"
+TitleInit "$@"

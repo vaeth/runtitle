@@ -1,6 +1,6 @@
 #!/usr/bin/env sh
 Echo() {
-	printf '%s\n' "${*}"
+	printf '%s\n' "$*"
 }
 
 Usage() {
@@ -8,9 +8,9 @@ Usage() {
 Run command with appropriate hard status (windows title) and beep on error.
 The special command \"eval\" can be used to execute the options as shell code.
 options:
--n NUM  Run command up to NUM times if it fails; currently ${numfail}
+-n NUM  Run command up to NUM times if it fails; currently $numfail
         0 means re-run forever if necessary.
--N NUM  Run command at least NUM times even if it succeeds; currently ${numall}
+-N NUM  Run command at least NUM times even if it succeeds; currently $numall
         0 means re-run forever
 -q      Never beep
 -v      Beep at every restart
@@ -30,32 +30,32 @@ numall=1
 titleopt=
 OPTIND=1
 while getopts 'qvbBn:N:T:h?' opt
-do	case ${opt} in
+do	case $opt in
 	q)	quiet=:;;
 	v)	verbose=:;;
 	b)	beep=:;;
 	B)	latebeep=:;;
-	n)	numfail=${OPTARG};;
-	N)	numall=${OPTARG};;
-	T)	titleopt=${titleopt}${OPTARG};;
+	n)	numfail=$OPTARG;;
+	N)	numall=$OPTARG;;
+	T)	titleopt=$titleopt$OPTARG;;
 	*)	Usage 0;;
 	esac
 done
-shift $(( ${OPTIND} -1 ))
+shift $(( $OPTIND -1 ))
 
-case ${titleopt} in
+case $titleopt in
 *[!pPfHsS-]*)
 	Usage;;
 esac
 
-[ ${#} -ne 0 ] || Usage
+[ $# -ne 0 ] || Usage
 case ${numfail:-x}${numall:-x} in
 *[!0-9]*)	Usage;;
 esac
-[ ${numall} -eq 0 ] && numfail=0
-[ ${numall} -le ${numfail} ] || numfail=${numall}
+[ $numall -eq 0 ] && numfail=0
+[ $numall -le $numfail ] || numfail=$numall
 
-if ${quiet}
+if $quiet
 then
 Beep() {
 :
@@ -67,69 +67,69 @@ printf '\007'
 fi
 
 Exit() {
-exit ${1:-${?}}
+exit ${1:-$?}
 }
 
 Title() {
 Title() {
 :
 }
-	case ${titleopt} in
+	case $titleopt in
 	*-*)	return;;
 	esac
 	command -v title >/dev/null 2>&1 || return 0
 Exit() {
-	exitstat=${1:-${?}}
+	exitstat=${1:-$?}
 	trap - EXIT HUP INT TERM
-	exit ${exitstat}
+	exit $exitstat
 }
 TitleTrap() {
 	trap : EXIT HUP INT TERM
-	Title "${cprog} interrupt"
+	Title "$cprog interrupt"
 	trap - EXIT HUP INT TERM
 	exit 130
 }
 	trap TitleTrap EXIT HUP INT TERM
 TitleInit() {
-. title "${@}"
+. title "$@"
 }
-	TitleInit ${titleopt:+"-${titleopt}"} -- "${@}"
+	TitleInit ${titleopt:+"-$titleopt"} -- "$@"
 }
 
 currtry=1
 prog=${1##*/}
-if [ "${2}" != '--' ]
-then	prog=${prog}${2:+ }${2}
-else	prog=${prog}${3:+ }${3}
+if [ "$2" != '--' ]
+then	prog=$prog${2:+ }$2
+else	prog=$prog${3:+ }$3
 fi
 
 Loop() {
-	cprog=${prog}
-	Title "running ${cprog}"
+	cprog=$prog
+	Title "running $cprog"
 	while :
-	do	( "${@}" ) && {
-			[ ${numall} -ne 0 ] && [ ${currtry} -ge ${numall} ] && return
-			${verbose} && Beep
-			currtry=$(( ${currtry} + 1 ))
-			cprog="${prog}(${currtry})"
-			Title "running ${cprog}"
+	do	( "$@" ) && {
+			[ $numall -ne 0 ] && [ $currtry -ge $numall ] && return
+			$verbose && Beep
+			currtry=$(( $currtry + 1 ))
+			cprog="$prog($currtry)"
+			Title "running $cprog"
 			continue
 		}
-		ret=${?}
-		cprog="${prog}(${currtry})"
-		${latebeep} || Beep
-		[ ${numfail} -ne 0 ] && [ ${currtry} -ge ${numfail} ] && return ${ret}
-		${verbose} && ${latebeep} && Beep
-		Title "failure ${cprog}[${ret}]"
-		currtry=$(( ${currtry} + 1 ))
+		ret=$?
+		cprog="$prog($currtry)"
+		$latebeep || Beep
+		[ $numfail -ne 0 ] && [ $currtry -ge $numfail ] && return $ret
+		$verbose && $latebeep && Beep
+		Title "failure $cprog[$ret]"
+		currtry=$(( $currtry + 1 ))
 	done
 }
 
-Loop "${@}" && {
-	Title "${cprog} success"
-	${beep} && Beep
+Loop "$@" && {
+	Title "$cprog success"
+	$beep && Beep
 	Exit 0
 }
-Title "${cprog}[${ret}]"
-${latebeep} && Beep
-Exit ${ret}
+Title "$cprog[$ret]"
+$latebeep && Beep
+Exit $ret
