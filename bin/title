@@ -4,11 +4,11 @@ TitleInit() {
 	titleinit_s1_=
 	titleinit_s2_=
 	case $TERM in
-	xterm*|screen*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
+	xterm*|screen*|tmux*|rxvt*|aterm*|konsole*|gnome*|Eterm*|kterm*|interix*)
 		titleinit_s1_=:;;
 	esac
 	case $TERM in
-	screen*)
+	screen*|tmux*)
 		titleinit_s2_=:;;
 	esac
 Title() {
