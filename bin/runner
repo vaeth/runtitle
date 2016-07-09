@@ -99,8 +99,8 @@ TitleInit() {
 currtry=1
 prog=${1##*/}
 if [ "$2" != '--' ]
-then	prog=$prog${2:+ }$2
-else	prog=$prog${3:+ }$3
+then	prog=$prog${2:+\ }$2
+else	prog=$prog${3:+\ }$3
 fi
 
 Loop() {

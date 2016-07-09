@@ -66,9 +66,9 @@ printf '"'\033k%s\033\\'\'' "$*"'
 TitleVerbose() {
 	[ -n "${USER:++}" ] || USER=`id -un`
 	[ -n "${HOSTNAME:++}" ] || HOSTNAME=`hostname`
-	if [ $# -eq 0 ]
+	if [ -z "${*:++}" ]
 	then	TitlePlain "$USER@$HOSTNAME"
-	else	TitlePlain "$*${*:+ }($USER@$HOSTNAME)"
+	else	TitlePlain "$* ($USER@$HOSTNAME)"
 	fi
 }
 	$titleinit_q_ || Title "$@"
