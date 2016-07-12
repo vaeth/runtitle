@@ -1,4 +1,5 @@
 #!/usr/bin/env sh
+set -u
 Echo() {
 	printf '%s\n' "$*"
 }
@@ -98,9 +99,9 @@ TitleInit() {
 
 currtry=1
 prog=${1##*/}
-if [ "$2" != '--' ]
-then	prog=$prog${2:+\ }$2
-else	prog=$prog${3:+\ }$3
+if [ x"${2-}" != x'--' ]
+then	prog=$prog${2:+\ }${2-}
+else	prog=$prog${3:+\ }${3-}
 fi
 
 Loop() {
