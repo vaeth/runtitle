@@ -16,7 +16,7 @@ TitleVerbose "$@"
 }
 	titleinit_q_=false
 	OPTIND=1
-	while getopts 'pPfHsSqh?' opt
+	while getopts 'pPfHsSqh' opt
 	do	case $opt in
 		p)
 Title() {
@@ -31,6 +31,7 @@ TitleVerbose "$@"
 		s)	titleinit_s2_=:;;
 		S)	titleinit_s2_=;;
 		q)	titleinit_q_=:;;
+		'?')	return 1;;
 		*)	printf '%s\n' "Usage: ${0##*/} [options] [text]
 Sets the hard status line (windows title).
 The following options are available:

@@ -4,6 +4,11 @@ Echo() {
 	printf '%s\n' "$*"
 }
 
+Fatal() {
+	Echo "${0##*/}: $*" >&2
+	exit 1
+}
+
 Usage() {
 	Echo "Usage: ${0##*/} [options] [--] command [options for command]
 Run command with appropriate hard status (windows title) and beep on error.
@@ -30,7 +35,7 @@ numfail=1
 numall=1
 titleopt=
 OPTIND=1
-while getopts 'qvbBn:N:T:h?' opt
+while getopts 'qvbBn:N:T:h' opt
 do	case $opt in
 	q)	quiet=:;;
 	v)	verbose=:;;
@@ -39,6 +44,7 @@ do	case $opt in
 	n)	numfail=$OPTARG;;
 	N)	numall=$OPTARG;;
 	T)	titleopt=$titleopt$OPTARG;;
+	'?')	exit 1;;
 	*)	Usage 0;;
 	esac
 done
@@ -46,12 +52,13 @@ shift $(( $OPTIND -1 ))
 
 case $titleopt in
 *[!pPfHsS-]*)
-	Usage;;
+	Fatal "wrong title option -T$titleopt";;
 esac
 
 [ $# -ne 0 ] || Usage
 case ${numfail:-x}${numall:-x} in
-*[!0-9]*)	Usage;;
+*[!0123456789]*)
+	Fatal 'arguments to -n or -N must be numbers';;
 esac
 [ $numall -eq 0 ] && numfail=0
 [ $numall -le $numfail ] || numfail=$numall
