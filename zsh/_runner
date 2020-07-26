@@ -1,4 +1,6 @@
 #compdef runner
+# (C) Martin V\"ath <martin at mvath.de>
+# SPDX-License-Identifier: BSD-3-Clause
 _arguments -s -S -A '-*' : \
 '(* -)-h[help]' \
 '-n+[NUM. Run up to NUM times if it fails (0=forever)]:num failure:(1)' \

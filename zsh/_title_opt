@@ -1,4 +1,6 @@
 #autoload
+# (C) Martin V\"ath <martin at mvath.de>
+# SPDX-License-Identifier: BSD-3-Clause
 local title
 title=(
 'p:do not print user and host'

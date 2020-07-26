@@ -3,7 +3,8 @@
 Scripts to run commands and set the hard status line (windows title)
 
 (C) Martin Väth (martin at mvath.de).
-This project is under the BSD license.
+This project is under the BSD license 2.0 (“3-clause BSD license”).
+SPDX-License-Identifier: BSD-3-Clause
 
 ## Installation
 
